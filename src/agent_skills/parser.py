@@ -27,6 +27,8 @@ def parse_skill_file(path: str | Path) -> SkillDocument:
         raise SkillParseError(f"Expected SKILL.md file, got: {skill_md.name}")
 
     text = skill_md.read_text(encoding="utf-8")
+    if text.startswith("\ufeff"):
+        text = text.lstrip("\ufeff")
     frontmatter, body = _split_frontmatter(text)
     raw = _load_frontmatter(frontmatter)
 

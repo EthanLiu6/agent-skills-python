@@ -7,6 +7,7 @@ from .models import SkillDocument, ValidationIssue, ValidationResult
 
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 XML_TAG_RE = re.compile(r"<[^>]+>")
+ALLOWED_TOOLS_TOKEN_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*(?:\([^)]*\))?$")
 
 
 def validate_skill_document(document: SkillDocument) -> ValidationResult:
@@ -16,9 +17,12 @@ def validate_skill_document(document: SkillDocument) -> ValidationResult:
     if not meta.name:
         issues.append(_err("name.required", "name is required", "name"))
     else:
-        if len(meta.name) > 64:
+        name = meta.name.strip()
+        if not name:
+            issues.append(_err("name.required", "name cannot be empty", "name"))
+        if len(name) > 64:
             issues.append(_err("name.length", "name must be <= 64 chars", "name"))
-        if not NAME_RE.match(meta.name):
+        if not NAME_RE.match(name):
             issues.append(
                 _err(
                     "name.pattern",
@@ -26,13 +30,13 @@ def validate_skill_document(document: SkillDocument) -> ValidationResult:
                     "name",
                 )
             )
-        if meta.name.startswith("-") or meta.name.endswith("-") or "--" in meta.name:
+        if name.startswith("-") or name.endswith("-") or "--" in name:
             issues.append(_err("name.hyphen", "name hyphen usage is invalid", "name"))
-        if "anthropic" in meta.name or "claude" in meta.name:
+        if "anthropic" in name or "claude" in name:
             issues.append(_err("name.reserved", "name contains reserved words", "name"))
-        if XML_TAG_RE.search(meta.name):
+        if XML_TAG_RE.search(name):
             issues.append(_err("name.xml_tag", "name must not contain XML tags", "name"))
-        if meta.name != document.root_dir.name:
+        if name != document.root_dir.name:
             issues.append(_err("name.dir_mismatch", "name must match parent directory name", "name"))
 
     if not meta.description:
@@ -68,11 +72,34 @@ def validate_skill_document(document: SkillDocument) -> ValidationResult:
                 issues.append(_err("metadata.kv_type", "metadata keys/values must be strings", "metadata"))
                 break
 
+    if meta.allowed_tools is not None:
+        tokens = [t for t in meta.allowed_tools.split(" ") if t.strip()]
+        if not tokens:
+            issues.append(_warn("allowed_tools.empty", "allowed-tools is present but empty", "allowed-tools"))
+        for token in tokens:
+            if not ALLOWED_TOOLS_TOKEN_RE.match(token):
+                issues.append(
+                    _warn(
+                        "allowed_tools.format",
+                        f"allowed-tools token may be malformed: {token}",
+                        "allowed-tools",
+                    )
+                )
+                break
+
     if len(document.body.splitlines()) > 500:
         issues.append(
             _warn(
                 "body.length",
                 "SKILL.md body exceeds 500 lines; consider splitting references",
+                "body",
+            )
+        )
+    if not document.headings:
+        issues.append(
+            _warn(
+                "body.headings",
+                "No markdown headings found; sectioned instructions are easier to maintain",
                 "body",
             )
         )
