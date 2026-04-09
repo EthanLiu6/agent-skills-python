@@ -1,49 +1,44 @@
-# Usage Guide
+# 使用指南
 
-## 1) Install
+## 1) 安装
 
 ```bash
 pip install -e ".[dev]"
 ```
 
-## 2) CLI usage
+## 2) CLI 使用
 
-### Discover skills
+### 列出 skill
 
 ```bash
 agent-skills --format text list ./examples
 ```
 
-### Inspect one skill
+### 查看 skill 详情
 
 ```bash
 agent-skills --format json inspect ./examples/docx-authoring
 ```
 
-### Validate skills in CI mode
+### 校验并用于 CI
 
 ```bash
 agent-skills --format json validate ./examples --fail-on-warning
 ```
 
-### Write validation report to file
+### 输出到文件
 
 ```bash
 agent-skills --format json validate ./examples --output reports/validation.json
 ```
 
-## 3) Python API usage
+## 3) Python API
 
 ```python
 from agent_skills import discover_skills, inspect_skill, validate_skills
 
 skills = discover_skills("./examples")
-print(f"discovered={len(skills)}")
-
 doc = inspect_skill("./examples/json-transform-pipeline")
-print(doc.metadata.name, len(doc.file_references))
-
 results = validate_skills("./examples")
-print(sum(1 for r in results if r.valid), "valid skills")
+print(len(skills), len(results))
 ```
-

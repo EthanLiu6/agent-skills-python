@@ -1,5 +1,7 @@
 # agent-skills-python
 
+English | [简体中文](README.zh-CN.md)
+
 `agent-skills-python` is a production-ready toolkit that helps any Python-based agent
 or automation platform adopt the Agent Skills format. The import package is
 `agent_skills`.
@@ -100,7 +102,7 @@ The package is intentionally split into stable layers:
 - `reporting`: output serializers for API/CLI integration
 - `cli`: operator-facing command interface
 
-See `docs/architecture.md` for details.
+See `docs/architecture.md` for details. Chinese version: `docs/zh/architecture.zh-CN.md`.
 
 ## Example skills
 
@@ -125,3 +127,6 @@ The project targets Python `3.10+`.
 - `docs/architecture.md`: architecture and extension strategy
 - `docs/usage.md`: practical API/CLI usage
 - `docs/skill-authoring.md`: authoring rules and quality checklist
+- `docs/zh/architecture.zh-CN.md`: 架构说明（中文）
+- `docs/zh/usage.zh-CN.md`: 使用指南（中文）
+- `docs/zh/skill-authoring.zh-CN.md`: Skill 编写指南（中文）
